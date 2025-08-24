@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conference Ticket Generator</title>
+  <style>
+    :root{
+      --bg: #0b1020;
+      --panel: #101833;
+      --accent: #7c5cff;
+      --accent-2: #24d6a5;
+      --text: #e9edf6;
+      --muted: #a9b2c7;
+      --error: #ff5454;
+      --focus: #ffd166;
+      --radius: 16px;
+      --gap: 16px;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 0%, #121a3a 0%, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 960px){
+      .wrap{
+        grid-template-columns: 520px 1fr;
+        align-items: start;
+      }
+    }
+
+    .card{
+      background: linear-gradient(180deg, #121a3a, #0c122d);
+      border: 1px solid #1e2a55;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 10px 30px rgb(0 0 0 / .35);
+    }
+
+    h1{
+      font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem);
+      margin: 0 0 8px 0;
+    }
+    p.lede{ color: var(--muted); margin-top: 0; }
+
+    label{ display:block; font-weight: 600; margin-bottom: 6px; }
+    .hint{ color: var(--muted); font-size: .9rem; margin: 6px 0 0; }
+
+    input[type="text"], input[type="email"], select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #27335f;
+      background: #0a122b;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    input[type="file"]{
+      width: 100%;
+    }
+
+    input:focus-visible, select:focus-visible{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent);
+    }
+
+    .row{ display: grid; grid-template-columns: 1fr; gap: var(--gap); }
+    @media (min-width: 640px){ .row.two{ grid-template-columns: 1fr 1fr; } }
+
+    .error{ color: var(--error); font-size: .9rem; margin: 6px 0 0; min-height: 1.1em; }
+
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    button, .button{
+      appearance: none; border: none; cursor: pointer;
+      background: var(--accent);
+      color: white; font-weight: 700;
+      padding: 12px 16px; border-radius: 12px;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s;
+    }
+    button.secondary{ background: #1f2b57; color: var(--text); }
+    button.ghost{ background: transparent; border: 1px solid #2b376c; }
+    button:hover{ filter: brightness(1.05); }
+    button:active{ transform: translateY(1px); }
+    button:focus-visible{ outline: 3px solid var(--focus); outline-offset: 2px; }
+
+    .sr-only{
+      position: absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0); border:0;
+    }
+
+    .ticket-area{ display: grid; gap: 16px; }
+    .ticket-preview{
+      display: grid; place-items: center; background: #0b1026; border: 1px dashed #27335f;
+      border-radius: var(--radius); min-height: 300px; padding: 12px;
+    }
+
+    .inline-help{ color: var(--muted); font-size: .9rem; }
+
+    .pill{
+      display:inline-block; padding: 2px 8px; border-radius: 999px;
+      background: color-mix(in oklab, var(--accent-2) 25%, transparent);
+      border: 1px solid color-mix(in oklab, var(--accent-2) 55%, black);
+      color: var(--text); font-size: .8rem; font-weight: 600;
+    }
+
+    .footer-note{ color: var(--muted); font-size: .9rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <main class="wrap" id="app">
+    <section class="card" aria-labelledby="formTitle">
+      <h1 id="formTitle">Conference Ticket Generator</h1>
+      <p class="lede">Fill the form to generate your personalized ticket. All fields marked with * are required.</p>
+
+      <div id="form-messages" class="sr-only" role="status" aria-live="polite"></div>
+
+      <form id="ticketForm" novalidate>
+        <div class="row two">
+          <div>
+            <label for="fullName">Full name *</label>
+            <input id="fullName" name="fullName" type="text" required aria-describedby="fullName-hint fullName-err" />
+            <p id="fullName-hint" class="hint">As you want it to appear on the ticket.</p>
+            <p id="fullName-err" class="error" role="alert"></p>
+          </div>
+          <div>
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" required aria-describedby="email-hint email-err" />
+            <p id="email-hint" class="hint">We'll validate the format, e.g. name@example.com</p>
+            <p id="email-err" class="error" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="company">Company / Organization</label>
+            <input id="company" name="company" type="text" aria-describedby="company-hint company-err" />
+            <p id="company-hint" class="hint">Optional. Shown on the ticket if provided.</p>
+            <p id="company-err" class="error" role="alert"></p>
+          </div>
+          <div>
+            <label for="role">Job title</label>
+            <input id="role" name="role" type="text" aria-describedby="role-hint role-err" />
+            <p id="role-hint" class="hint">Optional. Shown under your name.</p>
+            <p id="role-err" class="error" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="ticketType">Ticket type *</label>
+            <select id="ticketType" name="ticketType" required aria-describedby="ticketType-hint ticketType-err">
+              <option value="" selected disabled>Pick a ticket</option>
+              <option value="Standard">Standard</option>
+              <option value="VIP">VIP</option>
+              <option value="Student">Student</option>
+            </select>
+            <p id="ticketType-hint" class="hint">Determines the badge style.</p>
+            <p id="ticketType-err" class="error" role="alert"></p>
+          </div>
+
+          <div>
+            <label for="avatar">Avatar (JPG/PNG/WebP, max 1MB)</label>
+            <input id="avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="avatar-hint avatar-err" />
+            <p id="avatar-hint" class="hint">Optional, but recommended for a nicer ticket.</p>
+            <p id="avatar-err" class="error" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Generate ticket</button>
+          <button type="reset" class="secondary">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card ticket-area" aria-labelledby="ticketTitle">
+      <div style="display:flex; align-items:center; gap:8px; justify-content: space-between;">
+        <h2 id="ticketTitle" style="margin:0">Your Ticket</h2>
+        <span id="ticketStatus" class="pill" aria-live="polite">Waiting for valid submission…</span>
+      </div>
+
+      <div class="ticket-preview" id="ticketPreview" aria-live="polite">
+        <p class="inline-help">Submit the form to render your ticket here. It will also become downloadable as an image.</p>
+      </div>
+
+      <div class="actions">
+        <button id="downloadBtn" class="ghost" disabled>Download ticket (PNG)</button>
+      </div>
+
+      <p class="footer-note">Tip: navigate the form with your keyboard (Tab / Shift+Tab). Error messages are announced to screen readers.</p>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const form = document.getElementById('ticketForm');
+      const msgRegion = document.getElementById('form-messages');
+      const ticketStatus = document.getElementById('ticketStatus');
+      const preview = document.getElementById('ticketPreview');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      const MAX_AVATAR_BYTES = 1024 * 1024; // 1MB
+      const ALLOWED = ['image/jpeg','image/png','image/webp'];
+
+      function setError(id, message){
+        const input = document.getElementById(id);
+        const err = document.getElementById(id + '-err');
+        if(!err) return;
+        if(message){
+          input.setAttribute('aria-invalid', 'true');
+          err.textContent = message;
+        }else{
+          input.removeAttribute('aria-invalid');
+          err.textContent = '';
+        }
+      }
+
+      function validate(){
+        let ok = true;
+        // Full name
+        const fullName = form.fullName.value.trim();
+        if(!fullName){ ok = false; setError('fullName', 'Please enter your full name.'); } else setError('fullName', '');
+
+        // Email
+        const email = form.email.value.trim();
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+        if(!email){ ok = false; setError('email', 'Please enter your email.'); }
+        else if(!emailRe.test(email)){ ok = false; setError('email', 'Please enter a valid email address.'); }
+        else setError('email','');
+
+        // Ticket type
+        if(!form.ticketType.value){ ok = false; setError('ticketType', 'Please choose a ticket type.'); }
+        else setError('ticketType','');
+
+        // Avatar (optional) but validate if present
+        const file = form.avatar.files[0];
+        if(file){
+          if(!ALLOWED.includes(file.type)){
+            ok = false; setError('avatar', 'Unsupported format. Please upload JPG, PNG or WebP.');
+          }else if(file.size > MAX_AVATAR_BYTES){
+            ok = false; setError('avatar', 'File is too large. Max size is 1MB.');
+          }else{
+            setError('avatar','');
+          }
+        }else{
+          setError('avatar','');
+        }
+
+        msgRegion.textContent = ok ? 'All good! Generating your ticket…' : 'Please fix the errors in the form.';
+        return ok;
+      }
+
+      function paintTicketPNG(data){
+        return new Promise((resolve) => {
+          const W = 1200, H = 600; // canvas size
+          const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          const canvas = document.createElement('canvas');
+          canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+          const ctx = canvas.getContext('2d');
+          ctx.scale(dpr, dpr);
+
+          // Background
+          const grad = ctx.createLinearGradient(0,0,W,H);
+          grad.addColorStop(0, '#0f1736');
+          grad.addColorStop(1, '#0a1026');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0,0,W,H);
+
+          // Decorative stripes
+          ctx.fillStyle = 'rgba(124,92,255,0.18)';
+          ctx.fillRect(0, 520, W, 16);
+          ctx.fillStyle = 'rgba(36,214,165,0.18)';
+          ctx.fillRect(0, 544, W, 16);
+
+          // Ticket outline
+          ctx.strokeStyle = '#26315d';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(24,24,W-48,H-48);
+
+          // Header
+          ctx.fillStyle = '#e9edf6';
+          ctx.font = '700 42px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+          ctx.fillText('DevCon 2025', 40, 80);
+
+          // Ticket type pill
+          const typeText = data.ticketType.toUpperCase();
+          ctx.font = '700 18px system-ui';
+          const pillW = ctx.measureText(typeText).width + 28;
+          ctx.fillStyle = 'rgba(36,214,165,0.2)';
+          ctx.beginPath();
+          const rx = 10; const x=40, y=96, h=30, w=pillW;
+          ctx.moveTo(x+rx, y); ctx.lineTo(x+w-rx, y); ctx.quadraticCurveTo(x+w, y, x+w, y+rx);
+          ctx.lineTo(x+w, y+h-rx); ctx.quadraticCurveTo(x+w, y+h, x+w-rx, y+h);
+          ctx.lineTo(x+rx, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-rx);
+          ctx.lineTo(x, y+rx); ctx.quadraticCurveTo(x, y, x+rx, y); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#e9edf6';
+          ctx.fillText(typeText, 54, 116);
+
+          // Name
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '800 56px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+          ctx.fillText(data.fullName, 40, 210);
+
+          // Role & company line
+          ctx.fillStyle = '#a9b2c7';
+          ctx.font = '400 24px system-ui';
+          const roleLine = [data.role, data.company].filter(Boolean).join(' • ');
+          if(roleLine) ctx.fillText(roleLine, 40, 252);
+
+          // Email
+          ctx.fillStyle = '#c7d2f0';
+          ctx.font = '500 22px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.fillText(data.email, 40, 292);
+
+          // Right-side avatar circle
+          const AV_SIZE = 220; const ax = W - 60 - AV_SIZE; const ay = 100;
+          ctx.save();
+          ctx.beginPath(); ctx.arc(ax + AV_SIZE/2, ay + AV_SIZE/2, AV_SIZE/2, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+          const drawAvatar = (img)=>{
+            // cover fit
+            const iw = img.width, ih = img.height;
+            const scale = Math.max(AV_SIZE/iw, AV_SIZE/ih);
+            const dw = iw*scale, dh = ih*scale;
+            const dx = ax + (AV_SIZE - dw)/2; const dy = ay + (AV_SIZE - dh)/2;
+            ctx.drawImage(img, dx, dy, dw, dh);
+            ctx.restore();
+
+            // QR stub / code area
+            ctx.fillStyle = '#101833';
+            ctx.fillRect(W-260, 360, 200, 200);
+            ctx.strokeStyle = '#27335f'; ctx.strokeRect(W-260, 360, 200, 200);
+            ctx.fillStyle = '#7c5cff'; ctx.font = '700 18px system-ui';
+            ctx.fillText('TICKET ID', W-250, 388);
+            ctx.fillStyle = '#e9edf6'; ctx.font = '600 24px ui-monospace, Menlo, monospace';
+            const id = ('TK-' + Math.random().toString(36).slice(2,8)).toUpperCase();
+            ctx.fillText(id, W-250, 420);
+
+            // Footer text
+            ctx.fillStyle = '#a9b2c7'; ctx.font = '400 18px system-ui';
+            ctx.fillText('Valid for entry • Non-transferable', 40, H-40);
+
+            canvas.toBlob((blob)=>{
+              const url = URL.createObjectURL(blob);
+              resolve({canvas, url});
+            }, 'image/png');
+          };
+
+          if(data.avatarFile){
+            const img = new Image();
+            img.onload = ()=> drawAvatar(img);
+            img.onerror = ()=> { // fallback to placeholder
+              const p = new Image();
+              p.onload = ()=> drawAvatar(p);
+              p.src = placeholderDataURL();
+            };
+            const reader = new FileReader();
+            reader.onload = (e)=> { img.src = e.target.result; };
+            reader.readAsDataURL(data.avatarFile);
+          } else {
+            const p = new Image();
+            p.onload = ()=> drawAvatar(p);
+            p.src = placeholderDataURL();
+          }
+        });
+      }
+
+      function placeholderDataURL(){
+        // simple generated gradient placeholder
+        const c = document.createElement('canvas'); c.width = 300; c.height = 300; const x = c.getContext('2d');
+        const g = x.createLinearGradient(0,0,300,300); g.addColorStop(0,'#28326a'); g.addColorStop(1,'#1a2048');
+        x.fillStyle = g; x.fillRect(0,0,300,300);
+        x.fillStyle = '#a9b2c7'; x.font = '700 36px system-ui'; x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.fillText('NO AVATAR', 150, 150);
+        return c.toDataURL('image/png');
+      }
+
+      function renderTicket(data){
+        ticketStatus.textContent = 'Rendering…';
+        preview.innerHTML = '';
+        paintTicketPNG(data).then(({canvas, url})=>{
+          preview.appendChild(canvas);
+          downloadBtn.disabled = false;
+          downloadBtn.onclick = ()=>{
+            const a = document.createElement('a');
+            a.href = url; a.download = `${data.fullName.replace(/\s+/g,'_')}_ticket.png`;
+            document.body.appendChild(a); a.click(); a.remove();
+          };
+          ticketStatus.textContent = 'Ticket ready! You can download it.';
+        });
+      }
+
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        if(!validate()) return;
+        const data = {
+          fullName: form.fullName.value.trim(),
+          email: form.email.value.trim(),
+          company: form.company.value.trim(),
+          role: form.role.value.trim(),
+          ticketType: form.ticketType.value,
+          avatarFile: form.avatar.files[0] || null,
+        };
+        renderTicket(data);
+      });
+
+      form.addEventListener('reset', ()=>{
+        ['fullName','email','company','role','ticketType','avatar'].forEach(id=> setError(id, ''));
+        msgRegion.textContent = '';
+        preview.innerHTML = '<p class="inline-help">Submit the form to render your ticket here. It will also become downloadable as an image.</p>';
+        downloadBtn.disabled = true; ticketStatus.textContent = 'Waiting for valid submission…';
+      });
+
+      // Realtime lightweight validation feedback
+      form.email.addEventListener('blur', ()=>{
+        const v = form.email.value.trim();
+        if(v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(v)) setError('email','Please enter a valid email address.');
+        else setError('email','');
+      });
+    })();
+  </script>
+</body>
+</html>
