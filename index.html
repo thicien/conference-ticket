@@ -196,66 +196,66 @@
       <p class="lede">Fill the form to generate your ticket.</p>
       <div id="form-messages" class="sr-only" role="status" aria-live="polite"></div>
       <form id="ticketForm" novalidate>
-        <div class="row two">
-          <div>
-            <label for="fullName">Full name *</label>
-            <input id="fullName" name="fullName" type="text" required aria-describedby="fullName-hint fullName-err" />
-            <p id="fullName-hint" class="hint"></p>
-            <p id="fullName-err" class="error" role="alert"></p>
-          </div>
-          <div>
-            <label for="email">Email *</label>
-            <input id="email" name="email" type="email" required aria-describedby="email-hint email-err" />
-            <p id="email-hint" class="hint">Your email must match the requirements</p>
-            <p id="email-err" class="error" role="alert"></p>
-          </div>
-        </div>
-        <div class="row two">
-          <div>
-            <label for="company">Company / Organization</label>
-            <input id="company" name="company" type="text" aria-describedby="company-hint company-err" />
-            <p id="company-hint" class="hint">Optional. Shown on the ticket if provided.</p>
-            <p id="company-err" class="error" role="alert"></p>
-          </div>
-          <div>
-            <label for="role">Job title</label>
-            <input id="role" name="role" type="text" aria-describedby="role-hint role-err" />
-            <p id="role-hint" class="hint">Optional. Shown on your ticket.</p>
-            <p id="role-err" class="error" role="alert"></p>
-          </div>
-        </div>
-        <div class="row two">
-          <div>
-            <label for="ticketType">Ticket type *</label>
-            <select id="ticketType" name="ticketType" required aria-describedby="ticketType-hint ticketType-err">
-              <option value="" selected disabled>Pick a ticket</option>
-              <option value="VVIP">VVIP</option>
-              <option value="VIP">VIP</option>
-              <option value="Regular">Regular</option>
-              <option value="Student">Student</option>
-            </select>
-            <p id="ticketType-hint" class="hint">Determines the badge style.</p>
-            <p id="ticketType-err" class="error" role="alert"></p>
-          </div>
-          <div>
-            <label for="avatar">Avatar (JPG/PNG/WebP, max 1MB)</label>
-            <input id="avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="avatar-hint avatar-err" />
-            <p id="avatar-hint" class="hint">Optional, but recommended for a nicer ticket.</p>
-            <p id="avatar-err" class="error" role="alert"></p>
-          </div>
-        </div>
-        <div class="actions">
-          <button type="submit">Generate ticket</button>
-          <button type="reset" class="secondary">Reset</button>
-        </div>
+         <div class="row two">
+             <div>
+                 <label for="fullName">Full name *</label>
+                 <input id="fullName" name="fullName" type="text" required aria-describedby="fullName-hint fullName-err" />
+                 <p id="fullName-hint" class="hint"></p>
+                 <p id="fullName-err" class="error" role="alert"></p>
+             </div>
+             <div>
+                 <label for="email">Email *</label>
+                 <input id="email" name="email" type="email" required aria-describedby="email-hint email-err" />
+                 <p id="email-hint" class="hint">Your email must match the requirements</p>
+                 <p id="email-err" class="error" role="alert"></p>
+             </div>
+         </div>
+         <div class="row two">
+             <div>
+                 <label for="company">Company / Organization</label>
+                 <input id="company" name="company" type="text" aria-describedby="company-hint company-err" />
+                 <p id="company-hint" class="hint">Optional. Shown on the ticket if provided.</p>
+                 <p id="company-err" class="error" role="alert"></p>
+             </div>
+             <div>
+                 <label for="role">Job title</label>
+                 <input id="role" name="role" type="text" aria-describedby="role-hint role-err" />
+                 <p id="role-hint" class="hint">Optional. Shown on your ticket.</p>
+                 <p id="role-err" class="error" role="alert"></p>
+             </div>
+         </div>
+           <div class="row two">
+             <div>
+                   <label for="ticketType">Ticket type *</label>
+                  <select id="ticketType" name="ticketType" required aria-describedby="ticketType-hint ticketType-err">
+                     <option value="" selected disabled>Pick a ticket</option>
+                     <option value="VVIP">VVIP</option>
+                     <option value="VIP">VIP</option>
+                     <option value="Regular">Regular</option>
+                     <option value="Student">Student</option>
+                  </select>
+                  <p id="ticketType-hint" class="hint">Determines the badge style.</p>
+                  <p id="ticketType-err" class="error" role="alert"></p>
+              </div>
+               <div>
+                   <label for="avatar">Avatar (JPG/PNG/WebP, max 1MB)</label>
+                   <input id="avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="avatar-hint avatar-err" />
+                   <p id="avatar-hint" class="hint">Optional, but recommended for a nicer ticket.</p>
+                   <p id="avatar-err" class="error" role="alert"></p>
+               </div>
+           </div>
+         <div class="actions">
+             <button type="submit">Generate ticket</button>
+             <button type="reset" class="secondary">Reset</button>
+         </div>
       </form>
     </section>
 
     <section class="card ticket-area" aria-labelledby="ticketTitle">
       <div style="display:flex; align-items:center; gap:8px; justify-content: space-between;">
-        <h2 id="ticketTitle" style="margin:0">Your Ticket</h2>
-        <span id="ticketStatus" class="pill" aria-live="polite">Waiting for valid submission…</span>
-        <button id="toggleView" class="secondary" type="button">Small Screen View</button>
+         <h2 id="ticketTitle" style="margin:0">Your Ticket</h2>
+         <span id="ticketStatus" class="pill" aria-live="polite">Waiting for valid submission…</span>
+         <button id="toggleView" class="secondary" type="button">Small Screen View</button>
       </div>
 
       <div class="ticket-preview" id="ticketPreview" aria-live="polite">
